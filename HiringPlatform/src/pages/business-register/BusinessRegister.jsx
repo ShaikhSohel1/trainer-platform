@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const BusinessRegister = () => {
   const [formData, setFormData] = useState({
@@ -13,10 +14,11 @@ const BusinessRegister = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" }); // Clear any previous errors
+    setErrors({ ...errors, [e.target.name]: "" });
   };
 
   const handleSubmit = async (e) => {
@@ -29,8 +31,7 @@ const BusinessRegister = () => {
     try {
       await axios.post("http://localhost:3001/companies", formData);
       alert("Registration successful!");
-      // Optionally, redirect the user to another page after successful registration
-      // history.push('/login');
+      navigate('/sign-in');
     } catch (error) {
       console.error("Error registering company:", error);
       alert("Registration failed. Please try again.");
@@ -66,84 +67,33 @@ const BusinessRegister = () => {
   };
 
   return (
-    <div>
-      <div className="max-w-md mx-auto">
-        <h2 className="text-2xl font-semibold mb-4">Company Registration</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="uniqueId"
-            placeholder="Unique ID"
-            value={formData.uniqueId}
-            onChange={handleChange}
-            className="border border-gray-300 rounded px-4 py-2 w-full"
-          />
-          {errors.uniqueId && (
-            <div className="text-red-500">{errors.uniqueId}</div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 to-blue-100 py-6">
+      <div className="w-full max-w-lg bg-white rounded-lg shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4">
+          <h2 className="text-2xl font-bold text-white text-center">
+            Company Registration
+          </h2>
+        </div>
+        <form onSubmit={handleSubmit} className="px-8 py-6 space-y-4">
+          {Object.entries(formData).map(([key, value]) => (
+            <div key={key} className="flex flex-col">
+              <input
+                type={key === "password" ? "password" : "text"}
+                name={key}
+                placeholder={key[0].toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim()}
+                value={value}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border ${errors[key] ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500`}
+              />
+              {errors[key] && <p className="mt-2 text-sm text-red-600">{errors[key]}</p>}
+            </div>
+          ))}
+          {errors.general && (
+            <div className="text-center text-red-600">{errors.general}</div>
           )}
-          <input
-            type="text"
-            name="companyName"
-            placeholder="Company Name"
-            value={formData.companyName}
-            onChange={handleChange}
-            className="border border-gray-300 rounded px-4 py-2 w-full"
-          />
-          {errors.companyName && (
-            <div className="text-red-500">{errors.companyName}</div>
-          )}
-          <input
-            type="text"
-            name="location"
-            placeholder="Location"
-            value={formData.location}
-            onChange={handleChange}
-            className="border border-gray-300 rounded px-4 py-2 w-full"
-          />
-          {errors.location && (
-            <div className="text-red-500">{errors.location}</div>
-          )}
-          <input
-            type="text"
-            name="phone"
-            placeholder="Phone"
-            value={formData.phone}
-            onChange={handleChange}
-            className="border border-gray-300 rounded px-4 py-2 w-full"
-          />
-          {errors.phone && <div className="text-red-500">{errors.phone}</div>}
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            className="border border-gray-300 rounded px-4 py-2 w-full"
-          />
-          {errors.email && <div className="text-red-500">{errors.email}</div>}
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            className="border border-gray-300 rounded px-4 py-2 w-full"
-          />
-          {errors.password && (
-            <div className="text-red-500">{errors.password}</div>
-          )}
-          <input
-            type="text"
-            name="domain"
-            placeholder="Domain"
-            value={formData.domain}
-            onChange={handleChange}
-            className="border border-gray-300 rounded px-4 py-2 w-full"
-          />
-          {errors.domain && <div className="text-red-500">{errors.domain}</div>}
           <button
             type="submit"
-            className="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600"
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-2 px-4 rounded-md hover:bg-gradient-to-br focus:outline-none focus:shadow-outline transform transition duration-150 hover:scale-105"
           >
             Register
           </button>

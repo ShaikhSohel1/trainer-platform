@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
+const jwt = require('jsonwebtoken');
+const secretKey = 'yourSecretKey';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -47,6 +49,36 @@ const Company = mongoose.model("Company", companySchema);
 
 app.use(cors());
 app.use(express.json());
+
+
+const authenticateJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (authHeader) {
+    const token = authHeader.split(' ')[1]; // Bearer <token>
+
+    jwt.verify(token, secretKey, (err, user) => {
+      if (err) {
+        return res.sendStatus(403); // Forbidden
+      }
+
+      req.user = user;
+      next();
+    });
+  } else {
+    res.sendStatus(401); // Unauthorized
+  }
+};
+
+const authorizeRole = (roles) => (req, res, next) => {
+  if (roles.includes(req.user.role)) {
+    next();
+  } else {
+    res.sendStatus(403); // Forbidden
+  }
+};
+
+
 
 // Trainer registration endpoint
 app.post("/trainers", async (req, res) => {
@@ -120,14 +152,17 @@ app.post("/companies", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
+  console.log(email, password);
 
   try {
     // Check if the provided credentials are for the admin
     if (email == "admin@gmail.com" && password == "admin") {
-      return res.status(200).json({ role: "admin" }); // Return admin role
+      // Generate token for admin as well
+      const token = jwt.sign({ email, role: "admin" }, secretKey, { expiresIn: '1h' });
+      return res.status(200).json({ role: "admin", token }); // Return admin role and token
     }
 
-    // If the provided credentials are not for the admin, proceed with regular user login
+    // Proceed with regular user login for trainer or company
     let user = await Trainer.findOne({ email });
     let role = "trainer";
 
@@ -141,16 +176,36 @@ app.post("/login", async (req, res) => {
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
+    if (isPasswordValid) {
+      // Generate token
+      const token = jwt.sign({ email: user.email, role }, secretKey, { expiresIn: '1h' });
+      res.status(200).json({ role, token }); // Send the token to the client
+    } else {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-
-    res.status(200).json({ role });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+
+
+app.get('/admin-dashboard', authenticateJWT, authorizeRole(['admin']), (req, res) => {
+  // Admin dashboard code
+  res.send('Welcome to the Admin Dashboard');
+});
+
+app.get('/trainer-dashboard', authenticateJWT, authorizeRole(['trainer']), (req, res) => {
+  // Trainer dashboard code
+  res.send('Welcome to the Trainer Dashboard');
+});
+
+app.get('/business-dashboard', authenticateJWT, authorizeRole(['company']), (req, res) => {
+  // Business dashboard code
+  res.send('Welcome to the Business Dashboard');
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

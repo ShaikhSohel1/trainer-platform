@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const TrainerRegister = () => {
@@ -13,32 +14,15 @@ const TrainerRegister = () => {
     chargePerDay: "",
   });
 
+  const navigate = useNavigate();
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     try {
-      // Make an Axios POST request to your backend API endpoint
-      const response = await axios.post(
-        "http://localhost:3001/trainers", // Hardcoded URL
-        formData
-      );
-
-      // Handle successful response
-      console.log("Trainer registered successfully:", response.data);
-
-      // Clear the form data after successful registration
-      setFormData({
-        username: "",
-        password: "",
-        name: "",
-        email: "",
-        contactNumber: "",
-        skills: "",
-        address: "",
-        chargePerDay: "",
-      });
+      await axios.post("http://localhost:3001/trainers", formData);
+      console.log("Trainer registered successfully");
+      navigate('/sign-in'); // Adjust the route as necessary
     } catch (error) {
-      // Handle errors
       console.error("Error registering trainer:", error);
     }
   };
@@ -49,84 +33,34 @@ const TrainerRegister = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full bg-gray-100 py-8">
-      <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
-        Trainer Registration
-      </h2>
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md bg-white rounded-lg shadow-md px-8 pt-6 pb-8 mb-4"
-      >
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          value={formData.username}
-          onChange={handleChange}
-          className="input-field"
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          className="input-field"
-        />
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          value={formData.name}
-          onChange={handleChange}
-          className="input-field"
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          className="input-field"
-        />
-        <input
-          type="text"
-          name="contactNumber"
-          placeholder="Contact Number"
-          value={formData.contactNumber}
-          onChange={handleChange}
-          className="input-field"
-        />
-        <input
-          type="text"
-          name="skills"
-          placeholder="Skills (comma separated)"
-          value={formData.skills}
-          onChange={handleChange}
-          className="input-field"
-        />
-        <textarea
-          name="address"
-          placeholder="Address"
-          value={formData.address}
-          onChange={handleChange}
-          className="input-field"
-        />
-        <input
-          type="text"
-          name="chargePerDay"
-          placeholder="Charge Per Day"
-          value={formData.chargePerDay}
-          onChange={handleChange}
-          className="input-field"
-        />
-        <button
-          type="submit"
-          className="btn mt-6 w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline transition duration-300 ease-in-out"
-        >
-          Register
-        </button>
-      </form>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 to-blue-100 py-6">
+      <div className="w-full max-w-lg bg-white rounded-lg shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4">
+          <h2 className="text-2xl font-bold text-white text-center">
+            Trainer Registration
+          </h2>
+        </div>
+        <form onSubmit={handleSubmit} className="px-8 py-6">
+          {Object.entries(formData).map(([key, value], index) => (
+            <div key={key} className={`mb-4 ${index !== 0 && "mt-4"}`}>
+              <input
+                type={key === "password" ? "password" : "text"}
+                name={key}
+                placeholder={key[0].toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim()} // Converts camelCase to normal string
+                value={value}
+                onChange={handleChange}
+                className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          ))}
+          <button
+            type="submit"
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-2 px-4 rounded-md hover:bg-gradient-to-br focus:outline-none focus:shadow-outline transform transition duration-150 hover:scale-105"
+          >
+            Register
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
