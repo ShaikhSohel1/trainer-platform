@@ -1,9 +1,13 @@
+import CompaniesDetails from "./CompaniesDetails";
+import TrainersDetails from "./TrainersDetails";
+
 function AdminDashboard() {
-    return (
-        <div>
-            Admin Dashboard
-        </div>
-    )
+  return (
+    <div>
+      <TrainersDetails />
+      <CompaniesDetails />
+    </div>
+  );
 }
 
-export default AdminDashboard
+export default AdminDashboard;

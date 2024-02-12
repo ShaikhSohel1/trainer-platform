@@ -2,8 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
-const jwt = require('jsonwebtoken');
-const secretKey = 'yourSecretKey';
+const jwt = require("jsonwebtoken");
+const secretKey = "yourSecretKey";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -50,18 +50,19 @@ const Company = mongoose.model("Company", companySchema);
 app.use(cors());
 app.use(express.json());
 
-
 const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (authHeader) {
-    const token = authHeader.split(' ')[1]; // Bearer <token>
+    const token = authHeader.split(" ")[1]; // Bearer <token>
 
     jwt.verify(token, secretKey, (err, user) => {
       if (err) {
+        console.error("JWT Verification Error:", err); // Log verification errors
         return res.sendStatus(403); // Forbidden
       }
 
+      console.log("Decoded Token:", user); // Log decoded user information
       req.user = user;
       next();
     });
@@ -77,8 +78,6 @@ const authorizeRole = (roles) => (req, res, next) => {
     res.sendStatus(403); // Forbidden
   }
 };
-
-
 
 // Trainer registration endpoint
 app.post("/trainers", async (req, res) => {
@@ -158,7 +157,9 @@ app.post("/login", async (req, res) => {
     // Check if the provided credentials are for the admin
     if (email == "admin@gmail.com" && password == "admin") {
       // Generate token for admin as well
-      const token = jwt.sign({ email, role: "admin" }, secretKey, { expiresIn: '1h' });
+      const token = jwt.sign({ email, role: "admin" }, secretKey, {
+        expiresIn: "1h",
+      });
       return res.status(200).json({ role: "admin", token }); // Return admin role and token
     }
 
@@ -178,7 +179,9 @@ app.post("/login", async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
       // Generate token
-      const token = jwt.sign({ email: user.email, role }, secretKey, { expiresIn: '1h' });
+      const token = jwt.sign({ email: user.email, role }, secretKey, {
+        expiresIn: "1h",
+      });
       res.status(200).json({ role, token }); // Send the token to the client
     } else {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -189,23 +192,56 @@ app.post("/login", async (req, res) => {
   }
 });
 
+// Modify the admin-dashboard route to apply authentication middleware
+app.get(
+  "/admin-dashboard",
+  authenticateJWT, // Apply authentication middleware
+  authorizeRole(["admin"]), // Apply authorization middleware
+  (req, res) => {
+    // Admin dashboard code
+    res.send("Welcome to the Admin Dashboard");
+  }
+);
 
+app.get(
+  "/trainer-dashboard",
+  authenticateJWT,
+  authorizeRole(["trainer"]),
+  (req, res) => {
+    // Trainer dashboard code
+    res.send("Welcome to the Trainer Dashboard");
+  }
+);
 
-app.get('/admin-dashboard', authenticateJWT, authorizeRole(['admin']), (req, res) => {
-  // Admin dashboard code
-  res.send('Welcome to the Admin Dashboard');
+app.get(
+  "/business-dashboard",
+  authenticateJWT,
+  authorizeRole(["company"]),
+  (req, res) => {
+    // Business dashboard code
+    res.send("Welcome to the Business Dashboard");
+  }
+);
+
+app.get("/trainers", async (req, res) => {
+  try {
+    const trainers = await Trainer.find();
+    res.status(200).json(trainers);
+  } catch (error) {
+    console.error("Error fetching trainers:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
-app.get('/trainer-dashboard', authenticateJWT, authorizeRole(['trainer']), (req, res) => {
-  // Trainer dashboard code
-  res.send('Welcome to the Trainer Dashboard');
+app.get("/companies", async (req, res) => {
+  try {
+    const companies = await Company.find();
+    res.status(200).json(companies);
+  } catch (error) {
+    console.error("Error fetching companies:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
-
-app.get('/business-dashboard', authenticateJWT, authorizeRole(['company']), (req, res) => {
-  // Business dashboard code
-  res.send('Welcome to the Business Dashboard');
-});
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

@@ -27,33 +27,25 @@ function App() {
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/trainer-register" element={<TrainerRegister />} />
 
-        <Route 
-          path="/admin-dashboard" 
+        <Route
+          path="/admin-dashboard"
           element={
-            <ProtectedRoute 
-              component={AdminDashboard} 
-              roles={['admin']} 
-            />
-          } 
+            <ProtectedRoute component={AdminDashboard} roles={["admin"]} />
+          }
         />
-        <Route 
-          path="/trainer-dashboard" 
+        <Route
+          path="/trainer-dashboard"
           element={
-            <ProtectedRoute 
-              component={TrainerDashboard} 
-              roles={['trainer']} 
-            />
-          } 
+            <ProtectedRoute component={TrainerDashboard} roles={["trainer"]} />
+          }
         />
-        <Route 
-          path="/business-dashboard" 
+        <Route
+          path="/business-dashboard"
           element={
-            <ProtectedRoute 
-              component={BusinessDashboard} 
-              roles={['company']} 
-            />
-          } 
-        /></Switch>
+            <ProtectedRoute component={BusinessDashboard} roles={["company"]} />
+          }
+        />
+      </Switch>
       <Footer />
     </Router>
   );

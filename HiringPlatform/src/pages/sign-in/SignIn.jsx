@@ -20,7 +20,6 @@ const SignIn = () => {
       });
 
       const { role, token } = response.data; // Destructure to get the role and token
-      
 
       // Store the token for later use in requests
       localStorage.setItem("token", token);
@@ -42,19 +41,18 @@ const SignIn = () => {
 
   // Your existing JSX code remains unchanged
 
-
-
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
       <div className="w-full max-w-md bg-white rounded-lg shadow-2xl overflow-hidden">
         <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-5">
-          <h2 className="text-3xl font-bold text-white text-center">
-            Sign In
-          </h2>
+          <h2 className="text-3xl font-bold text-white text-center">Sign In</h2>
         </div>
         <form onSubmit={handleSubmit} className="px-8 py-6 space-y-6">
           <div>
-            <label htmlFor="email" className="text-sm font-medium text-gray-700 block">
+            <label
+              htmlFor="email"
+              className="text-sm font-medium text-gray-700 block"
+            >
               Email address
             </label>
             <input
@@ -69,7 +67,10 @@ const SignIn = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="text-sm font-medium text-gray-700 block">
+            <label
+              htmlFor="password"
+              className="text-sm font-medium text-gray-700 block"
+            >
               Password
             </label>
             <input
@@ -85,7 +86,11 @@ const SignIn = () => {
 
           <button
             type="submit"
-            className={`w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-medium text-white ${loading ? 'bg-purple-400' : 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+            className={`w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-medium text-white ${
+              loading
+                ? "bg-purple-400"
+                : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
             disabled={loading}
           >
             {loading ? "Signing in..." : "Sign In"}
