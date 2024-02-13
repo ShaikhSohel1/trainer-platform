@@ -34,7 +34,7 @@ function App() {
           }
         />
         <Route
-          path="/trainer-dashboard"
+          path="/trainer-dashboard/:email"
           element={
             <ProtectedRoute component={TrainerDashboard} roles={["trainer"]} />
           }

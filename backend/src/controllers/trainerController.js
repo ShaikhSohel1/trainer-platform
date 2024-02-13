@@ -1,4 +1,5 @@
 const Trainer = require("../models/Trainer");
+const bcrypt = require('bcrypt')
 
 const registerTrainer = async (req, res) => {
   try {
@@ -9,7 +10,7 @@ const registerTrainer = async (req, res) => {
       email,
       contactNumber,
       skills,
-      address,
+      city,
       chargePerDay,
     } = req.body;
 
@@ -22,7 +23,7 @@ const registerTrainer = async (req, res) => {
       email,
       contactNumber,
       skills,
-      address,
+      city,
       chargePerDay,
     });
 
@@ -36,7 +37,7 @@ const registerTrainer = async (req, res) => {
 
 const getAllTrainers = async (req, res) => {
   try {
-    const trainers = await Trainer.find();
+    const trainers = await Trainer.find({}, { password: 0 });
     res.status(200).json(trainers);
   } catch (error) {
     console.error("Error fetching trainers:", error);

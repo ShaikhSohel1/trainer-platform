@@ -10,7 +10,7 @@ const TrainerRegister = () => {
     email: "",
     contactNumber: "",
     skills: "",
-    address: "",
+    city: "",
     chargePerDay: "",
   });
 

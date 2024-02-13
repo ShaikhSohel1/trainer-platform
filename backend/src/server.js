@@ -6,7 +6,7 @@ const trainerRoutes = require("./routes/trainerRoutes");
 const companyRoutes = require("./routes/companyRoutes");
 
 const PORT = process.env.PORT || 3001;
-const uri = "mongodb+srv://avinash:avinash@cluster0.rlhitli.mongodb.net/";
+const uri = "mongodb+srv://tripster:V9x0Kz3810H7WsKa@cluster0.l1gdauh.mongodb.net/";
 
 const app = express();
 

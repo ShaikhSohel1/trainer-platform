@@ -19,18 +19,36 @@ mongoose
   .then(() => console.log("Connected to MongoDB Atlas"))
   .catch((err) => console.error("Error connecting to MongoDB Atlas:", err));
 
-// Define Trainer schema
-const trainerSchema = new mongoose.Schema({
-  username: { type: String, required: true },
-  password: { type: String, required: true },
-  name: { type: String, required: true },
-  email: { type: String, required: true },
-  contactNumber: { type: String, required: true },
-  skills: { type: String, required: true },
-  address: { type: String, required: true },
-  chargePerDay: { type: String, required: true },
-  role: { type: String, default: "trainer" },
-});
+  const educationSchema = new mongoose.Schema({
+    degree: { type: String, required: true,default: "" },
+    institution: { type: String, required: true,default: "" },
+    year: { type: Number, required: true,default: "" },
+  });
+  
+  // Define Links and URLs schema
+  const linksSchema = new mongoose.Schema({
+    linkedInUrl: { type: String,default: "" },
+    resumeUrl: { type: String,default: "" },
+  });
+  
+  const trainerSchema = new mongoose.Schema({
+    username: { type: String, required: true,unique: true },
+    password: { type: String, required: true },
+    name: { type: String, required: true },
+    email: { type: String, required: true,unique: true },
+    contactNumber: { type: String, required: true },
+    skills: { type: String, required: true },
+    city: { type: String, required: true },
+    chargePerDay: { type: String, required: true },
+    trainerType: { type: String, default: "" },
+    openToTravel: { type: Boolean,default: false },
+    deliveryMode: { type: Boolean,default: false},
+    clients: { type: String,default: "" },
+    education: [educationSchema], // Array of education objects
+    links: [linksSchema], // Nested schema for links and URLs
+    role: { type: String, default: "trainer" },
+  });
+  
 
 // Define Company schema
 const companySchema = new mongoose.Schema({
@@ -89,7 +107,7 @@ app.post("/trainers", async (req, res) => {
       email,
       contactNumber,
       skills,
-      address,
+      city,
       chargePerDay,
     } = req.body;
 
@@ -102,7 +120,7 @@ app.post("/trainers", async (req, res) => {
       email,
       contactNumber,
       skills,
-      address,
+      city,
       chargePerDay,
     });
 
@@ -113,6 +131,107 @@ app.post("/trainers", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+// Find trainer by username endpoint
+app.get("/trainers/:email", async (req, res) => {
+  const { email } = req.params;
+  // console.log(username)
+  try {
+    // Find the trainer by username
+    const trainer = await Trainer.findOne({ email });
+    if (!trainer) {
+      return res.status(404).json({ message: "Trainer not found" });
+    }
+
+    res.status(200).json(trainer);
+  } catch (error) {
+    console.error("Error finding trainer:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
+// Update trainer by username endpoint
+app.put("/trainers/:email", async (req, res) => {
+  const { email: updatedEmail } = req.params; // Rename 'email' to 'updatedEmail'
+
+  try {
+    // Find the trainer by email
+    let trainer = await Trainer.findOne({ email: updatedEmail });
+    if (!trainer) {
+      return res.status(404).json({ message: "Trainer not found" });
+    }
+
+    // Update trainer fields
+    const {
+      password,
+      name,
+      email,
+      contactNumber,
+      skills,
+      city,
+      chargePerDay,
+      trainerType,
+      openToTravel,
+      deliveryMode,
+      clients,
+      education,
+      links
+    } = req.body;
+
+    if (password) {
+      trainer.password = password;
+    }
+    if (name) {
+      trainer.name = name;
+    }
+    if (email) {
+      trainer.email = email;
+    }
+    if (contactNumber) {
+      trainer.contactNumber = contactNumber;
+    }
+    if (skills) {
+      trainer.skills = skills;
+    }
+    if (city) {
+      trainer.city = city;
+    }
+    if (chargePerDay) {
+      trainer.chargePerDay = chargePerDay;
+    }
+    if (trainerType !== undefined) {
+      trainer.trainerType = trainerType;
+    }
+    if (openToTravel !== undefined) {
+      trainer.openToTravel = openToTravel;
+    }
+    if (deliveryMode !== undefined) {
+      trainer.deliveryMode = deliveryMode;
+    }
+    if (clients) {
+      trainer.clients = clients;
+    }
+    if (education) {
+      trainer.education = education;
+    }
+    if (links) {
+      trainer.links = links;
+    }
+
+    // Save the updated trainer
+    trainer = await trainer.save();
+
+    res.status(200).json({ message: "Trainer updated successfully", trainer });
+  } catch (error) {
+    console.error("Error updating trainer:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
+
+
 
 // Company registration endpoint
 app.post("/companies", async (req, res) => {
@@ -225,7 +344,7 @@ app.get(
 
 app.get("/trainers", async (req, res) => {
   try {
-    const trainers = await Trainer.find();
+    const trainers = await Trainer.find({}, { password: 0 });
     res.status(200).json(trainers);
   } catch (error) {
     console.error("Error fetching trainers:", error);

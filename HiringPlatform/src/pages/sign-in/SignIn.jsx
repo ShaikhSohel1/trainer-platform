@@ -19,14 +19,16 @@ const SignIn = () => {
         password,
       });
 
-      const { role, token } = response.data; // Destructure to get the role and token
+      const { role, token, } = response.data; // Destructure to get the role and token
 
       // Store the token for later use in requests
       localStorage.setItem("token", token);
+      alert(token)
+      alert(email)
 
       // Redirect user based on role
       if (role === "trainer") {
-        navigate("/trainer-dashboard");
+        navigate(`/trainer-dashboard/${email}`);
       } else if (role === "company") {
         navigate("/business-dashboard");
       } else if (role === "admin") {
