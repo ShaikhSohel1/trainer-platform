@@ -62,8 +62,21 @@ const companySchema = new mongoose.Schema({
   role: { type: String, default: "company" },
 });
 
+const purchaseOrdersSchema = new mongoose.Schema({
+  businessId: { type: String, required: true },
+  trainerEmail: { type: String, required: true },
+  amount: { type: Number, required: true },
+  status: { type: Boolean, required: true },
+  endDate: { type: Date, required: true },
+  startDate: { type: Date, required: true },
+});
+
+
+
 const Trainer = mongoose.model("Trainer", trainerSchema);
 const Company = mongoose.model("Company", companySchema);
+const PurchaseOrder = mongoose.model('PurchaseOrder', purchaseOrdersSchema);
+
 
 app.use(cors());
 app.use(express.json());
@@ -229,7 +242,63 @@ app.put("/trainers/:email", async (req, res) => {
   }
 });
 
+//get all the details of PO for a particular trainer id
+app.get('/purchase-orders/:email', async (req, res) => {
+  const { email } = req.params;
 
+  try {
+    const purchaseOrders = await PurchaseOrder.find({ trainerEmail: email });
+    res.json(purchaseOrders);
+  } catch (error) {
+    console.error('Error fetching purchase orders:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// fetched trainer accepted tarinings i.e feching my training for particular trainer
+app.get('/training-orders/:email', async (req, res) => {
+  const { email } = req.params;
+
+  try {
+    const purchaseOrders = await PurchaseOrder.find({ trainerEmail: email, status: true });
+    res.json(purchaseOrders);
+  } catch (error) {
+    console.error('Error fetching purchase orders:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// PUT route to accept a purchase order
+app.put('/purchase-orders/:id/accept', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const updatedOrder = await PurchaseOrder.findByIdAndUpdate(id, { status: true }, { new: true });
+    if (!updatedOrder) {
+      return res.status(404).json({ message: 'Purchase order not found' });
+    }
+    res.json(updatedOrder);
+  } catch (error) {
+    console.error('Error updating purchase order:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// PUT route to reject a purchase order
+app.put('/purchase-orders/:id/reject', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedOrder = await PurchaseOrder.findByIdAndDelete(id);
+    if (!deletedOrder) {
+      return res.status(404).json({ message: 'Purchase order not found' });
+    }
+    res.json({ message: 'Purchase order rejected and deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting purchase order:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 
 
