@@ -19,17 +19,6 @@ mongoose
   .then(() => console.log("Connected to MongoDB Atlas"))
   .catch((err) => console.error("Error connecting to MongoDB Atlas:", err));
 
-  const educationSchema = new mongoose.Schema({
-    degree: { type: String, required: true,default: "" },
-    institution: { type: String, required: true,default: "" },
-    year: { type: Number, required: true,default: "" },
-  });
-  
-  // Define Links and URLs schema
-  const linksSchema = new mongoose.Schema({
-    linkedInUrl: { type: String,default: "" },
-    resumeUrl: { type: String,default: "" },
-  });
   
   const trainerSchema = new mongoose.Schema({
     username: { type: String, required: true,unique: true },
@@ -44,8 +33,8 @@ mongoose
     openToTravel: { type: Boolean,default: false },
     deliveryMode: { type: Boolean,default: false},
     clients: { type: String,default: "" },
-    education: [educationSchema], // Array of education objects
-    links: [linksSchema], // Nested schema for links and URLs
+    Resume: { type: String,default: "" },
+    linkedInUrl: { type: String,default: "" },
     role: { type: String, default: "trainer" },
   });
   
@@ -175,8 +164,8 @@ app.put("/trainers/:email", async (req, res) => {
       openToTravel,
       deliveryMode,
       clients,
-      education,
-      links
+      Resume,
+      linkedInUrl
     } = req.body;
 
     if (password) {
@@ -212,11 +201,11 @@ app.put("/trainers/:email", async (req, res) => {
     if (clients) {
       trainer.clients = clients;
     }
-    if (education) {
-      trainer.education = education;
+    if (Resume) {
+      trainer.Resume = Resume;
     }
-    if (links) {
-      trainer.links = links;
+    if (linkedInUrl) {
+      trainer.linkedInUrl = linkedInUrl;
     }
 
     // Save the updated trainer

@@ -137,9 +137,9 @@ function CardFour() {
           value={filter}
           onChange={e => setFilter(e.target.value)}
         >
-          <option value="All">All</option>
-          <option value="Recent">Recent</option>
-          <option value="Popular">Popular</option>
+          <option value="All">Current</option>
+          <option value="Recent">Upcoming</option>
+          <option value="Popular">Completed</option>
         </select>
       </div>
 
