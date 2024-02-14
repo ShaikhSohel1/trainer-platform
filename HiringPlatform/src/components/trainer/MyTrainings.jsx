@@ -609,6 +609,36 @@ const MyTrainings = ({ email }) => {
     </Document>
   );
 
+  // const handleDownloadInvoice = async (invoiceId) => {
+  //   try {
+  //     const response = await fetch(`http://localhost:3001/invoices/${invoiceId}/download`);
+  //     if (!response.ok) {
+  //       throw new Error('Failed to download invoice');
+  //     }
+  //     const invoiceData = await response.json();
+
+  //     // Render PDF
+  //     const pdfContent = <Invoice invoiceData={invoiceData} />;
+  //     const blob = await pdf(pdfContent).toBlob();
+
+  //     // Create URL for the blob
+  //     const url = URL.createObjectURL(blob);
+
+  //     // Create a link element and trigger the download
+  //     const a = document.createElement('a');
+  //     a.href = url;
+  //     a.download = 'invoice.pdf';
+  //     document.body.appendChild(a);
+  //     a.click();
+  //     document.body.removeChild(a);
+
+  //     // Clean up URL object
+  //     URL.revokeObjectURL(url);
+  //   } catch (error) {
+  //     console.error('Error downloading invoice:', error);
+  //   }
+  // };
+
   const handleDownloadInvoice = async (invoiceId) => {
     try {
       const response = await fetch(`http://localhost:3001/invoices/${invoiceId}/download`);
@@ -616,29 +646,35 @@ const MyTrainings = ({ email }) => {
         throw new Error('Failed to download invoice');
       }
       const invoiceData = await response.json();
-
-      // Render PDF
-      const pdfContent = <Invoice invoiceData={invoiceData} />;
-      const blob = await pdf(pdfContent).toBlob();
-
-      // Create URL for the blob
-      const url = URL.createObjectURL(blob);
-
-      // Create a link element and trigger the download
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'invoice.pdf';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-      // Clean up URL object
-      URL.revokeObjectURL(url);
+  
+      // Check if paymentStatus is true
+      if (invoiceData.paymentStatus) {
+        // Render PDF
+        const pdfContent = <Invoice invoiceData={invoiceData} />;
+        const blob = await pdf(pdfContent).toBlob();
+  
+        // Create URL for the blob
+        const url = URL.createObjectURL(blob);
+  
+        // Create a link element and trigger the download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'invoice.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+  
+        // Clean up URL object
+        URL.revokeObjectURL(url);
+      } else {
+        alert("Payment Not Done Yet")
+        console.error('Cannot download invoice: Payment has not been completed.');
+        // Optionally, you can show a message to the user indicating that the payment needs to be completed.
+      }
     } catch (error) {
       console.error('Error downloading invoice:', error);
     }
   };
-
   return (
     <div className="container mx-auto mt-10">
       <h1 className="text-2xl font-bold mb-5">My Trainings</h1>
