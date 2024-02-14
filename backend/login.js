@@ -37,7 +37,7 @@ mongoose
     username: { type: String, required: true,unique: true },
     password: { type: String, required: true },
     name: { type: String, required: true },
-    email: { type: String, required: true,unique: true },
+    email: { type: String, required: true },
     contactNumber: { type: String, required: true },
     skills: { type: String, required: true },
     city: { type: String, required: true },
@@ -65,7 +65,8 @@ const companySchema = new mongoose.Schema({
 });
 
 const purchaseOrdersSchema = new mongoose.Schema({
-  businessId: { type: String, required: true },
+  
+businessRequestId: { type: String, required: true },
   trainerEmail: { type: String, required: true },
   amount: { type: Number, required: true },
   status: { type: Boolean, required: true },
@@ -369,7 +370,7 @@ app.put('/raise-invoice/:id', async (req, res) => {
     const newInvoice = new TrainerInvoice({
       trainerId: trainer._id,
       poId: purchaseOrder._id,
-      businessId: purchaseOrder.businessId,
+      businessId: purchaseOrder.businessRequestId,
       name: trainer.name,
       email: trainer.email,
       amount: purchaseOrder.amount,
@@ -390,7 +391,7 @@ app.put('/raise-invoice/:id', async (req, res) => {
   }
 });
 
-// GET Trainer Invoice by ID
+// GET Trainer Invoice by email
 app.get('/invoices/:email', async (req, res) => {
   try {
     const trainerInvoices = await TrainerInvoice.find({ email: req.params.email });
@@ -400,6 +401,21 @@ app.get('/invoices/:email', async (req, res) => {
     res.json(trainerInvoices);
   } catch (error) {
     console.error('Error fetching trainer invoices:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// GET invoice details by ID
+app.get('/invoices/:id/download', async (req, res) => {
+  try {
+    const trainingId = req.params.id;
+    const training = await TrainerInvoice.findById(trainingId);
+    if (!training) {
+      return res.status(404).json({ message: 'Invoice not found' });
+    }
+    res.json(training);
+  } catch (error) {
+    console.error('Error fetching invoice:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
