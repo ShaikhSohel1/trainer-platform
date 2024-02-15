@@ -79,7 +79,7 @@ const trainerInvoiceSchema = new mongoose.Schema({
   poId: { type: Schema.Types.ObjectId, ref: 'PurchaseOrder', required: true },
   businessId: { type: Schema.Types.ObjectId, ref: 'Company', required: true },
   name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  email: { type: String, required: true, },
   amount: { type: String, required: true },
   contactNumber : {type: String, required:true},
   raiseStatus: { type: Boolean, required: true,default:true},
