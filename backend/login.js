@@ -420,6 +420,32 @@ app.get('/invoices/:id/download', async (req, res) => {
   }
 });
 
+//Api for deleting a trainer account
+app.delete('/trainer/:email', async (req, res) => {
+  const email = req.params.email;
+
+  try {
+    // Find the trainer by ID
+    const trainer = await Trainer.findOne({ email });
+
+    if (!trainer) {
+      return res.status(404).json({ error: 'Trainer not found' });
+    }
+
+    // Perform additional checks if needed (e.g., ensure the request is coming from the authenticated trainer)
+
+    // Delete the trainer
+    await trainer.deleteOne();
+
+    res.json({ message: 'Trainer account deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+
 
 
 // Company registration endpoint
