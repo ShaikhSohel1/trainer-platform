@@ -4,6 +4,8 @@ const bcrypt = require("bcrypt");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const secretKey = "yourSecretKey";
+const Schema = mongoose.Schema;
+const { Timestamp } = require('mongodb');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -24,7 +26,7 @@ mongoose
     username: { type: String, required: true,unique: true },
     password: { type: String, required: true },
     name: { type: String, required: true },
-    email: { type: String, required: true,unique: true },
+    email: { type: String, required: true },
     contactNumber: { type: String, required: true },
     skills: { type: String, required: true },
     city: { type: String, required: true },
@@ -51,8 +53,38 @@ const companySchema = new mongoose.Schema({
   role: { type: String, default: "company" },
 });
 
+const purchaseOrdersSchema = new mongoose.Schema({
+  
+businessRequestId: { type: String, required: true },
+  trainerEmail: { type: String, required: true },
+  amount: { type: Number, required: true },
+  status: { type: Boolean, required: true },
+  endDate: { type: Date, required: true },
+  startDate: { type: Date, required: true },
+});
+
+const trainerInvoiceSchema = new mongoose.Schema({
+  trainerId: { type: Schema.Types.ObjectId, ref: 'Trainer', required: true },
+  poId: { type: Schema.Types.ObjectId, ref: 'PurchaseOrder', required: true },
+  businessId: { type: Schema.Types.ObjectId, ref: 'Company', required: true },
+  name: { type: String, required: true },
+  email: { type: String, required: true, },
+  amount: { type: String, required: true },
+  contactNumber : {type: String, required:true},
+  raiseStatus: { type: Boolean, required: true,default:true},
+  paymentStatus: { type: Boolean, required: true },
+  startDate: { type: Date, required: true },
+  endDate: { type: Date, required: true },
+
+});
+
+
+
 const Trainer = mongoose.model("Trainer", trainerSchema);
 const Company = mongoose.model("Company", companySchema);
+const PurchaseOrder = mongoose.model('PurchaseOrder', purchaseOrdersSchema);
+const TrainerInvoice = mongoose.model('TrainerInvoice',trainerInvoiceSchema);
+
 
 app.use(cors());
 app.use(express.json());
@@ -215,6 +247,189 @@ app.put("/trainers/:email", async (req, res) => {
   } catch (error) {
     console.error("Error updating trainer:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+//get all the details of PO for a particular trainer id
+app.get('/purchase-orders/:email', async (req, res) => {
+  const { email } = req.params;
+
+  try {
+    const purchaseOrders = await PurchaseOrder.find({ trainerEmail: email });
+    res.json(purchaseOrders);
+  } catch (error) {
+    console.error('Error fetching purchase orders:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// fetched trainer accepted tarinings i.e feching my training for particular trainer
+app.get('/training-orders/:email', async (req, res) => {
+  const { email } = req.params;
+
+  try {
+    const purchaseOrders = await PurchaseOrder.find({ trainerEmail: email, status: true });
+    res.json(purchaseOrders);
+  } catch (error) {
+    console.error('Error fetching purchase orders:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// PUT route to accept a purchase order
+app.put('/purchase-orders/:id/accept', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const updatedOrder = await PurchaseOrder.findByIdAndUpdate(id, { status: true }, { new: true });
+    if (!updatedOrder) {
+      return res.status(404).json({ message: 'Purchase order not found' });
+    }
+    res.json(updatedOrder);
+  } catch (error) {
+    console.error('Error updating purchase order:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// PUT route to reject a purchase order
+app.put('/purchase-orders/:id/reject', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedOrder = await PurchaseOrder.findByIdAndDelete(id);
+    if (!deletedOrder) {
+      return res.status(404).json({ message: 'Purchase order not found' });
+    }
+    res.json({ message: 'Purchase order rejected and deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting purchase order:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// PUT route to raise an invoice for a purchase order but not adding the data into database
+// app.put('/purchase-orders/:id/raise', async (req, res) => {
+//   const { id } = req.params;
+
+//   try {
+//     // Find the purchase order by ID
+//     const purchaseOrder = await PurchaseOrder.findById(id);
+//     if (!purchaseOrder) {
+//       return res.status(404).json({ message: 'Purchase order not found' });
+//     }
+
+//     // Check if the purchase order status is eligible for raising an invoice
+//     if (!purchaseOrder.status) {
+//       return res.status(400).json({ message: 'Cannot raise invoice for pending order' });
+//     }
+
+//     // Get the current server timestamp from MongoDB
+//     const serverTimestamp = Timestamp.fromNumber(Date.now());
+
+//     // Update the purchase order with the server timestamp
+//     purchaseOrder.invoiceRaised = serverTimestamp;
+//     await purchaseOrder.save();
+
+//     res.json({ message: 'Invoice raised successfully' });
+//   } catch (error) {
+//     console.error('Error raising invoice:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// });
+// PUT route to raise an invoice for a purchase order
+
+app.put('/raise-invoice/:id', async (req, res) => {
+  const purchaseOrderId = req.params.id;
+
+  try {
+    // Fetch the purchase order from the database
+    const purchaseOrder = await PurchaseOrder.findById(purchaseOrderId);
+    if (!purchaseOrder) {
+      return res.status(404).json({ error: 'Purchase order not found.' });
+    }
+
+    // Fetch the trainer details from the database using the trainer's email from the purchase order
+    const trainer = await Trainer.findOne({ email: purchaseOrder.trainerEmail });
+    if (!trainer) {
+      return res.status(404).json({ error: 'Trainer not found.' });
+    }
+
+    // Create a new TrainerInvoice document
+    const newInvoice = new TrainerInvoice({
+      trainerId: trainer._id,
+      poId: purchaseOrder._id,
+      businessId: purchaseOrder.businessRequestId,
+      name: trainer.name,
+      email: trainer.email,
+      amount: purchaseOrder.amount,
+      contactNumber: trainer.contactNumber,
+      raiseStatus:true,
+      paymentStatus: false, // Set paymentStatus to false initially
+      startDate: purchaseOrder.startDate,
+      endDate: purchaseOrder.endDate,
+    });
+
+    // Save the new invoice to the database
+    await newInvoice.save();
+
+    res.status(200).json({ message: 'Invoice raised successfully.' });
+  } catch (error) {
+    console.error('Error raising invoice:', error);
+    res.status(500).json({ error: 'An error occurred while raising the invoice.' });
+  }
+});
+
+// GET Trainer Invoice by email
+app.get('/invoices/:email', async (req, res) => {
+  try {
+    const trainerInvoices = await TrainerInvoice.find({ email: req.params.email });
+    if (!trainerInvoices || trainerInvoices.length === 0) {
+      return res.status(404).json({ message: 'Trainer invoices not found' });
+    }
+    res.json(trainerInvoices);
+  } catch (error) {
+    console.error('Error fetching trainer invoices:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// GET invoice details by ID
+app.get('/invoices/:id/download', async (req, res) => {
+  try {
+    const trainingId = req.params.id;
+    const training = await TrainerInvoice.findById(trainingId);
+    if (!training) {
+      return res.status(404).json({ message: 'Invoice not found' });
+    }
+    res.json(training);
+  } catch (error) {
+    console.error('Error fetching invoice:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+//Api for deleting a trainer account
+app.delete('/trainer/:email', async (req, res) => {
+  const email = req.params.email;
+
+  try {
+    // Find the trainer by ID
+    const trainer = await Trainer.findOne({ email });
+
+    if (!trainer) {
+      return res.status(404).json({ error: 'Trainer not found' });
+    }
+
+    // Perform additional checks if needed (e.g., ensure the request is coming from the authenticated trainer)
+
+    // Delete the trainer
+    await trainer.deleteOne();
+
+    res.json({ message: 'Trainer account deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 

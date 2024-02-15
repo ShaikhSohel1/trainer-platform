@@ -1,212 +1,345 @@
 
-// import React, { useState } from 'react';
-// import { ArrowUpRight } from 'lucide-react';
+// import React, { useState, useEffect } from 'react';
 
-// function CardFour() {
-//   // Dummy data
-//   const cardData = {
-//     title: 'About Macbook',
-//     description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi, debitis?',
-//     tags: ['#Macbook', '#Apple', '#Laptop'],
-//     author: {
-//       name: 'Dan Abromov',
-//       username: '@dan_abromov',
-//       profilePic:
-//         'https://overreacted.io/static/profile-pic-c715447ce38098828758e525a1128b87.jpg',
-//     },
-//   };
+// const PODetails = ({email}) => {
+//   const [purchaseOrders, setPurchaseOrders] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
 
-//   const [filter, setFilter] = useState('All'); // Default filter is set to 'All'
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         const response = await fetch(`http://localhost:3001/purchase-orders/${email}`);
+//         if (!response.ok) {
+//           throw new Error('Failed to fetch data');
+//         }
+//         const data = await response.json();
+//         setPurchaseOrders(data);
+//         setLoading(false);
+//       } catch (error) {
+//         console.error('Error fetching data:', error);
+//         setError('Failed to fetch data');
+//         setLoading(false);
+//       }
+//     };
 
-//   // Filter logic based on the selected filter
-//   const filteredTags =
-//     filter === 'All'
-//       ? cardData.tags
-//       : cardData.tags.filter(tag => tag.toLowerCase().includes(filter.toLowerCase()));
+//     fetchData();
+//   }, []);
+
+//   if (loading) {
+//     return <div>Loading...</div>;
+//   }
+
+//   if (error) {
+//     return <div>Error: {error}</div>;
+//   }
 
 //   return (
-//     <div className="relative">
-//       {/* Title */}
-//       <h2 className="text-2xl font-bold mb-4 mt-8">Purchase Orders</h2>
-
-//       {/* Filter dropdown */}
-//       <div className="absolute top-0 right-0 mt-2 mr-2">
-//         <label htmlFor="filter" className="text-sm font-medium text-gray-700">
-//           Filter by:
-//         </label>
-//         <select
-//           id="filter"
-//           name="filter"
-//           className="ml-2 p-1 border border-gray-300 rounded-md"
-//           value={filter}
-//           onChange={e => setFilter(e.target.value)}
-//         >
-//           <option value="All">All</option>
-//           <option value="Recent">Recent</option>
-//           <option value="Popular">Popular</option>
-//         </select>
-//       </div>
-
-//       {/* Card content */}
-//       <div className="flex max-w-2xl flex-col items-center rounded-md border md:flex-row">
-//         <div className="h-full w-full md:h-[200px] md:w-[300px]">
-//           <img
-//             src="https://images.unsplash.com/photo-1522199755839-a2bacb67c546?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fGJsb2d8ZW58MHx8MHx8&auto=format&fit=crop&w=800&q=60"
-//             alt="Laptop"
-//             className="h-full w-full rounded-md object-cover"
-//           />
-//         </div>
-//         <div>
-//           <div className="p-4">
-//             <h1 className="inline-flex items-center text-lg font-semibold">
-//               {cardData.title} <ArrowUpRight className="ml-2 h-4 w-4" />
-//             </h1>
-//             <p className="mt-3 text-sm text-gray-600">{cardData.description}</p>
-//             <div className="mt-4">
-//               {filteredTags.map((tag, index) => (
-//                 <span
-//                   key={index}
-//                   className="mb-2 mr-2 inline-block rounded-full bg-gray-100 px-3 py-1 text-[10px] font-semibold text-gray-900"
-//                 >
-//                   {tag}
-//                 </span>
-//               ))}
-//             </div>
-//             <div className="mt-3 flex items-center space-x-2">
-//               <img
-//                 className="inline-block h-8 w-8 rounded-full"
-//                 src={cardData.author.profilePic}
-//                 alt={cardData.author.name}
-//               />
-//               <span className="flex flex-col">
-//                 <span className="text-[10px] font-medium text-gray-900">
-//                   {cardData.author.name}
-//                 </span>
-//                 <span className="text-[8px] font-medium text-gray-500">
-//                   {cardData.author.username}
-//                 </span>
-//               </span>
-//             </div>
+//     <div className="container mx-auto m-10">
+//       <h1 className="text-2xl font-bold mb-5">Purchase Orders</h1>
+//       <div className="grid grid-cols-1 gap-6 mx-10">
+//         {purchaseOrders.map(order => (
+//           <div key={order._id} className="border shadow-md p-4 rounded-md mb-4">
+//             <div>Business ID: {order.businessId}</div>
+//             <div>Trainer Email: {order.trainerEmail}</div>
+//             <div>Amount: {order.amount}</div>
+//             <div>Status: {order.status ? 'Active' : 'Inactive'}</div>
+//             <div>Start Date: {new Date(order.startDate).toLocaleDateString()}</div>
+//             <div>End Date: {new Date(order.endDate).toLocaleDateString()}</div>
 //           </div>
-//         </div>
+//         ))}
 //       </div>
 //     </div>
 //   );
-// }
+// };
 
-// export default CardFour;
-import React, { useState } from 'react';
-import { ArrowUpRight } from 'lucide-react';
+// export default PODetails;
+// import React, { useState, useEffect } from 'react';
 
-function CardFour() {
-  // Dummy data
-  const cardData = {
-    title: 'About Macbook',
-    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi, debitis?',
-    tags: ['#Macbook', '#Apple', '#Laptop'],
-    author: {
-      name: 'Dan Abromov',
-      username: '@dan_abromov',
-      profilePic:
-        'https://overreacted.io/static/profile-pic-c715447ce38098828758e525a1128b87.jpg',
-    },
+// const PODetails = ({email}) => {
+//   const [purchaseOrders, setPurchaseOrders] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         const response = await fetch(`http://localhost:3001/purchase-orders/${email}`);
+//         if (!response.ok) {
+//           throw new Error('Failed to fetch data');
+//         }
+//         const data = await response.json();
+//         setPurchaseOrders(data);
+//         setLoading(false);
+//       } catch (error) {
+//         console.error('Error fetching data:', error);
+//         setError('Failed to fetch data');
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchData();
+//   }, []);
+
+//   const handleAccept = async (id) => {
+//     try {
+//       const response = await fetch(`http://localhost:3001/purchase-orders/${id}/accept`, {
+//         method: 'PUT',
+//         headers: {
+//           'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({ status: true })
+//       });
+//       if (!response.ok) {
+//         throw new Error('Failed to accept order');
+//       }
+//       // Update status locally
+//       setPurchaseOrders(prevOrders => prevOrders.map(order => order._id === id ? { ...order, status: true } : order));
+//     } catch (error) {
+//       console.error('Error accepting order:', error);
+//     }
+//   };
+
+//   const handleReject = async (id) => {
+//     try {
+//       const response = await fetch(`http://localhost:3001/purchase-orders/${id}/reject`, {
+//         method: 'PUT',
+//         headers: {
+//           'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({ status: false })
+//       });
+//       if (!response.ok) {
+//         throw new Error('Failed to reject order');
+//       }
+//       // Update status locally
+//       setPurchaseOrders(prevOrders => prevOrders.map(order => order._id === id ? { ...order, status: false } : order));
+//     } catch (error) {
+//       console.error('Error rejecting order:', error);
+//     }
+//   };
+
+//   if (loading) {
+//     return <div>Loading...</div>;
+//   }
+
+//   if (error) {
+//     return <div>Error: {error}</div>;
+//   }
+
+//   return (
+//     <div className="container mx-auto mt-10">
+//       <h1 className="text-2xl font-bold mb-5">Purchase Orders</h1>
+//       <div>
+//         {purchaseOrders.map(order => (
+//           <div key={order._id} className="border shadow-md p-4 rounded-md mb-4">
+//             <div>Business ID: {order.businessId}</div>
+//             <div>Trainer Email: {order.trainerEmail}</div>
+//             <div>Amount: {order.amount}</div>
+//             <div>Status: {order.status ? 'Accepted' : 'Pending'}</div>
+//             <div>Start Date: {new Date(order.startDate).toLocaleDateString()}</div>
+//             <div>End Date: {new Date(order.endDate).toLocaleDateString()}</div>
+//             <div className="mt-4">
+//               <button onClick={() => handleAccept(order._id)} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mr-2">Accept</button>
+//               <button onClick={() => handleReject(order._id)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">Reject</button>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default PODetails;
+// import React, { useState, useEffect } from 'react';
+
+// const PODetails = ({ email }) => {
+//   const [purchaseOrders, setPurchaseOrders] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         const response = await fetch(`http://localhost:3001/purchase-orders/${email}`);
+//         if (!response.ok) {
+//           throw new Error('Failed to fetch data');
+//         }
+//         const data = await response.json();
+//         setPurchaseOrders(data);
+//         setLoading(false);
+//       } catch (error) {
+//         console.error('Error fetching data:', error);
+//         setError('Failed to fetch data. Please try again later.');
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchData();
+//   }, [email]);
+
+//   const handleAccept = async (id) => {
+//     try {
+//       const response = await fetch(`http://localhost:3001/purchase-orders/${id}/accept`, {
+//         method: 'PUT',
+//         headers: {
+//           'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({ status: true })
+//       });
+//       if (!response.ok) {
+//         throw new Error('Failed to accept order');
+//       }
+//       // Update status locally
+//       setPurchaseOrders(prevOrders => prevOrders.map(order => order._id === id ? { ...order, status: true } : order));
+//     } catch (error) {
+//       console.error('Error accepting order:', error);
+//       setError('Failed to accept order. Please try again later.');
+//     }
+//   };
+
+//   const handleReject = async (id) => {
+//     try {
+//       const response = await fetch(`http://localhost:3001/purchase-orders/${id}/reject`, {
+//         method: 'PUT',
+//         headers: {
+//           'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({ status: false })
+//       });
+//       if (!response.ok) {
+//         throw new Error('Failed to reject order');
+//       }
+//       // Remove the rejected order from the local state
+//       setPurchaseOrders(prevOrders => prevOrders.filter(order => order._id !== id));
+//     } catch (error) {
+//       console.error('Error rejecting order:', error);
+//       setError('Failed to reject order. Please try again later.');
+//     }
+//   };
+
+//   return (
+//     <div className="container mx-auto mt-10">
+//       <h1 className="text-2xl font-bold mb-5">Purchase Orders</h1>
+//       {loading && <div className="text-center">Loading...</div>}
+//       {error && <div className="text-red-500">{error}</div>}
+//       {!loading && !error && (
+//         <div>
+//           {purchaseOrders.map(order => (
+//             <div key={order._id} className="border shadow-md p-4 rounded-md mb-4">
+//               <div>Business ID: {order.businessId}</div>
+//               <div>Trainer Email: {order.trainerEmail}</div>
+//               <div>Amount: {order.amount}</div>
+//               <div>Status: {order.status ? 'Accepted' : 'Pending'}</div>
+//               <div>Start Date: {new Date(order.startDate).toLocaleDateString()}</div>
+//               <div>End Date: {new Date(order.endDate).toLocaleDateString()}</div>
+//               <div className="mt-4">
+//                 <button onClick={() => handleAccept(order._id)} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mr-2">Accept</button>
+//                 <button onClick={() => handleReject(order._id)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">Reject</button>
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default PODetails;
+
+import React, { useState, useEffect } from 'react';
+
+const PODetails = ({ email }) => {
+  const [purchaseOrders, setPurchaseOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`http://localhost:3001/purchase-orders/${email}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        const data = await response.json();
+        setPurchaseOrders(data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setError('Failed to fetch data. Please try again later.');
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [email]);
+
+  const handleAccept = async (id, status) => {
+    if (status === true) return; // Do nothing if already accepted
+    try {
+      const response = await fetch(`http://localhost:3001/purchase-orders/${id}/accept`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: true })
+      });
+      if (!response.ok) {
+        throw new Error('Failed to accept order');
+      }
+      // Update status locally
+      setPurchaseOrders(prevOrders => prevOrders.map(order => order._id === id ? { ...order, status: true } : order));
+    } catch (error) {
+      console.error('Error accepting order:', error);
+      setError('Failed to accept order. Please try again later.');
+    }
   };
 
-  const [filter, setFilter] = useState('All'); // Default filter is set to 'All'
-
-  // Filter logic based on the selected filter
-  const filteredTags =
-    filter === 'All'
-      ? cardData.tags
-      : cardData.tags.filter(tag => tag.toLowerCase().includes(filter.toLowerCase()));
+  const handleReject = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3001/purchase-orders/${id}/reject`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: false })
+      });
+      if (!response.ok) {
+        throw new Error('Failed to reject order');
+      }
+      // Remove the rejected order from the local state
+      setPurchaseOrders(prevOrders => prevOrders.filter(order => order._id !== id));
+    } catch (error) {
+      console.error('Error rejecting order:', error);
+      setError('Failed to reject order. Please try again later.');
+    }
+  };
 
   return (
-    <div className="relative">
-      {/* Title */}
-      <h2 className="text-2xl font-bold mb-4 mt-8">Purchase Orders</h2>
-
-      {/* Filter dropdown */}
-      <div className="absolute top-0 right-0 mt-2 mr-2">
-        <label htmlFor="filter" className="text-sm font-medium text-gray-700">
-          Filter by:
-        </label>
-        <select
-          id="filter"
-          name="filter"
-          className="ml-2 p-1 border border-gray-300 rounded-md"
-          value={filter}
-          onChange={e => setFilter(e.target.value)}
-        >
-          <option value="All">All</option>
-          <option value="Recent">Recent</option>
-          <option value="Popular">Popular</option>
-        </select>
-      </div>
-
-      {/* Card content */}
-      <div className="flex max-w-2xl flex-col items-center rounded-md border md:flex-row">
-        <div className="h-full w-full md:h-[200px] md:w-[300px]">
-          <img
-            src="https://images.unsplash.com/photo-1522199755839-a2bacb67c546?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fGJsb2d8ZW58MHx8MHx8&auto=format&fit=crop&w=800&q=60"
-            alt="Laptop"
-            className="h-full w-full rounded-md object-cover"
-          />
-        </div>
+    <div className="container mx-auto mt-10">
+      <h1 className="text-2xl font-bold mb-5">Purchase Orders</h1>
+      {loading && <div className="text-center">Loading...</div>}
+      {error && <div className="text-red-500">{error}</div>}
+      {!loading && !error && (
         <div>
-          <div className="p-4">
-            <h1 className="inline-flex items-center text-lg font-semibold">
-              {cardData.title} <ArrowUpRight className="ml-2 h-4 w-4" />
-            </h1>
-            <p className="mt-3 text-sm text-gray-600">{cardData.description}</p>
-            <div className="mt-4">
-              {filteredTags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="mb-2 mr-2 inline-block rounded-full bg-gray-100 px-3 py-1 text-[10px] font-semibold text-gray-900"
-                >
-                  {tag}
-                </span>
-              ))}
+          {purchaseOrders.map(order => (
+            <div key={order._id} className="border shadow-md p-4 rounded-md mb-4">
+              <div>Business ID: {order.businessRequestId}</div>
+              <div>Trainer Email: {order.trainerEmail}</div>
+              <div>Amount: {order.amount}</div>
+              <div>Status: {order.status ? 'Accepted' : 'Pending'}</div>
+              <div>Start Date: {new Date(order.startDate).toLocaleDateString()}</div>
+              <div>End Date: {new Date(order.endDate).toLocaleDateString()}</div>
+              <div className="mt-4">
+                <button onClick={() => handleAccept(order._id, order.status)} disabled={order.status} className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mr-2 ${order.status ? 'opacity-50 cursor-not-allowed' : ''}`}>Accept</button>
+                <button onClick={() => handleReject(order._id)} disabled={order.status} className={`bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded ${order.status ? 'opacity-50 cursor-not-allowed' : ''}`}>Reject</button>
+              </div>
             </div>
-            <div className="mt-3 flex items-center space-x-2">
-              <img
-                className="inline-block h-8 w-8 rounded-full"
-                src={cardData.author.profilePic}
-                alt={cardData.author.name}
-              />
-              <span className="flex flex-col">
-                <span className="text-[10px] font-medium text-gray-900">
-                  {cardData.author.name}
-                </span>
-                <span className="text-[8px] font-medium text-gray-500">
-                  {cardData.author.username}
-                </span>
-              </span>
-            </div>
-          </div>
+          ))}
         </div>
-      </div>
-
-      {/* Pagination at the bottom */}
-        <div className="flex items-center mt-64">
-        <a href="#" className="mx-1 cursor-not-allowed text-sm font-semibold text-gray-900">
-          &larr; Previous
-        </a>
-        {[1, 2, 3, 4].map(page => (
-          <a
-            key={page}
-            href="#"
-            className="mx-1 flex items-center rounded-md border border-gray-400 px-3 py-1 text-gray-900 hover:scale-105"
-          >
-            {page}
-          </a>
-        ))}
-        <a href="#" className="mx-2 text-sm font-semibold text-gray-900">
-          Next &rarr;
-        </a>
-      </div>
+      )}
     </div>
   );
-}
+};
 
-export default CardFour;
+export default PODetails;
